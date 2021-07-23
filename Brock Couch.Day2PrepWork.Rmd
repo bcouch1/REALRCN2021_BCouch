@@ -43,7 +43,7 @@ install.packages("ggplot2")
 library(ggplot2)
 ```
 
-**7. To make a plot, we need to first specify the data and map the aesthetics. The aesthetics include how each variable in our data set will be used. In the example below, we use the built-in "iris" data set, and we will use the aes() function to identify the x and y variables in the plot. We will use the "point" geom to create a scatter plot.  Run the code block below for an initial plot!
+**7. To make a plot, we need to first specify the data and map the aesthetics. The aesthetics include how each variable in our data set will be used. In the example below, we use the built-in "iris" data set, and we will use the aes() function to identify the x and y variables in the plot. We will use the "point" geom to create a scatter plot.  Run the code block below for an initial plot!**
 
 ```{r}
 ggplot(data = iris, mapping = aes(x = Sepal.Length, y = Petal.Length)) +

@@ -1,0 +1,140 @@
+---
+title: "Day 2 Homework"
+author: "Brock Couch"
+date: "2 August 2021"
+output:
+  html_document:
+    theme: spacelab
+    toc: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructions
+Answer the following questions and complete the exercises in RMarkdown. Please embed all of your code and push your final work to your repository. Remember, you must remove the `#` for the included code chunks to run. Be sure to add your name to the author header above.  
+
+## Load the libraries
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(janitor)
+library(here)
+library(naniar)
+``` 
+
+For this homework, we will use data about California colleges. These data are a subset of the national college scorecard (https://collegescorecard.ed.gov/data/). Load the `ca_college_data.csv` as a new object called `colleges`.
+```{r}
+library(readr)
+CA_College<- read_csv("ca_college_data.csv")
+```
+
+The variables are a bit hard to decipher, here is a key:  
+
+INSTNM: Institution name  
+CITY: California city  
+STABBR: Location state  
+ZIP: Zip code  
+ADM_RATE: Admission rate  
+SAT_AVG: SAT average score  
+PCIP26: Percentage of degrees awarded in Biological And Biomedical Sciences  
+COSTT4_A: Annual cost of attendance  
+C150_4_POOLED: 4-year completion rate  
+PFTFTUG1_EF: Percentage of undergraduate students who are first-time, full-time degree/certificate-seeking undergraduate students  
+
+1. Use your preferred function(s) to have a look at the data and get an idea of its structure. 
+```{r}
+str(CA_College)
+```
+
+```{r}
+summary(CA_College)
+```
+
+```{r}
+glimpse(CA_College)
+```
+
+2. Which cities in California have the highest number of colleges?
+```{r}
+City_Count<- CA_College%>%
+  group_by(CITY)%>%
+  summarise(freq=n())
+###Los Angeles has the highest number of colleges.
+```
+
+3. Based on your answer to #2, make a plot that shows the number of colleges in the top 10 cities.
+```{r}
+top_n(City_Count,n=10,freq)%>%
+  ggplot(aes(x= reorder(CITY, -freq), y=freq))+
+  geom_bar(stat = "identity")+
+  labs(x="California Cities", y="Number of Colleges")+
+  theme(axis.text.x.bottom = element_text(angle = 45, vjust = .6))
+```
+
+4. The column `COSTT4_A` is the annual cost of each institution. Which city has the highest average cost?
+```{r}
+Avg_Cost<-CA_College[!is.na(CA_College$COSTT4_A),]%>%
+  group_by(CITY)%>%
+  summarise(Avg_Cost=mean(COSTT4_A))%>%
+  arrange(desc(Avg_Cost))
+
+
+City<- CA_College%>%
+  group_by(CITY)
+
+###Claremont has the highest average cost.
+```
+
+5. Based on your answer to #4, make a plot that compares the cost of the individual colleges in the most expensive city.
+```{r}
+CA_College%>%
+  filter(CITY == "Claremont")%>%
+  ggplot(aes(reorder(INSTNM, -COSTT4_A), COSTT4_A))+
+  geom_bar(stat = "identity")+
+  labs(x="Universities in Claremont, CA",y="Annual Cost")+
+  theme(axis.text.x.bottom = element_text(angle = 25, vjust = .75, hjust = .65))
+```
+
+6. The column `ADM_RATE` is the admissions rate by college and `C150_4_POOLED` is the four-year completion rate. Use a scatterplot to show the relationship between these two variables. What do you think this means?
+```{r}
+CA_College%>%
+  ggplot(aes(ADM_RATE,C150_4_POOLED))+
+  geom_jitter()+
+  geom_smooth(method = "lm")
+###This means that as acceptance increases, there is a lower proportion of students who graduate.
+```
+
+7. Is there a relationship between cost and four-year completion rate? (You don't need to do the stats, just produce a plot). What do you think this means?
+```{r}
+CA_College%>%
+  ggplot(aes(COSTT4_A, C150_4_POOLED))+
+  geom_jitter()+
+  geom_smooth(method = "lm")
+
+###Yes there is a relationship between cost and four-year completion rate.
+```
+
+8. If you wanted to get a degree in biological or biomedical sciences, which campus confers the majority of these degrees? Produce a numerical summary and an appropriate plot.
+```{r}
+BIO<- CA_College%>%
+  select(c(INSTNM, PCIP26))%>%
+  arrange(desc(PCIP26))
+###University of California-San Diego has the highest proportion of biological or biomedical graduates.
+
+BIO_condensed<- BIO%>%
+  subset(PCIP26>0.0) ###Removing zeros and NAs from dataset
+BIO_condensed$IDNUM<- seq.int(nrow(BIO_condensed)) ###Giving Institutions unique ids
+BIO_condensed$IDNUM<- as.character(BIO_condensed$IDNUM+1000) ###Giving Institutions unique ids
+
+BIO_condensed[1:10,]%>%
+  ggplot(aes(IDNUM, PCIP26))+
+  geom_point()+
+  labs(x="Unique ID of University",y="Percentage of Degrees Awarded in Biological and Biomedical Sciences")+
+  theme(axis.title.y = element_text(size=10, hjust = 1, margin=margin(r=10)), 
+        axis.title.x = element_text(margin = margin(t=10)))
+
+```
+
+
+## Knit Your Output and Post to your Github

@@ -129,7 +129,7 @@ BIO_condensed$IDNUM<- as.character(BIO_condensed$IDNUM+1000) ###Giving Instituti
 
 BIO_condensed[1:10,]%>%
   ggplot(aes(IDNUM, PCIP26))+
-  geom_point()+
+  geom_bar(stat = "identity")+
   labs(x="Unique ID of University",y="Percentage of Degrees Awarded in Biological and Biomedical Sciences")+
   theme(axis.title.y = element_text(size=10, hjust = 1, margin=margin(r=10)), 
         axis.title.x = element_text(margin = margin(t=10)))

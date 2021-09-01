@@ -160,19 +160,29 @@ This has been a lot of new tools. Let's end today's session with some more pract
 1. **Fix this code.** I've heard anecdotally that transfer students have struggled to learn as effectively in these courses, particularly in course 1.  My very imperfect way of checking this is to look multiple choice question 2, both pre- and post-course, and see what fraction of students got it correct. I wrote my code below, but it just won't run!!! ***There are three errors*** preventing this code from running properly. Please find and correct them, then run the code and see what you find.
 
 ```{r, eval=FALSE}
+# edu_dat %>%
+#   select(mc2_pre, mc2_post, Course, admit_level) %>%
+#   mutate(mc2_pre_clean = ifelse(mc2_pre = "-99", NA, mc2_pre),
+#          mc2_post_clean = ifelse(mc2_post = "-99", NA, mc2_post)) %>%
+#   mutate(mc2_pre_tf = (mc2_pre_clean == "A"),
+#          mc2_post_tf = (mc2_post_clean == "A"))
+#   group_by(course, admit_level) %>%
+#   summarize(mean_pre = mean(mc2_pre_tf,na.rm = TRUE),
+#             mean_post = mean(mc2_post_tf,na.rm = TRUE))
+  
 edu_dat %>%
-  select(mc2_pre, mc2_post, Course, admit_level) %>%
-  mutate(mc2_pre_clean = ifelse(mc2_pre = "-99", NA, mc2_pre),
-         mc2_post_clean = ifelse(mc2_post = "-99", NA, mc2_post)) %>%
+  select(mc2_pre, mc2_post, course, admit_level) %>%
+  mutate(mc2_pre_clean = ifelse(mc2_pre == "-99", NA, mc2_pre),
+         mc2_post_clean = ifelse(mc2_post =="-99", NA, mc2_post)) %>%
   mutate(mc2_pre_tf = (mc2_pre_clean == "A"),
-         mc2_post_tf = (mc2_post_clean == "A"))
+         mc2_post_tf = (mc2_post_clean == "A"))%>%
   group_by(course, admit_level) %>%
   summarize(mean_pre = mean(mc2_pre_tf,na.rm = TRUE),
             mean_post = mean(mc2_post_tf,na.rm = TRUE))
 ```
 
 ***Do these data support the anecdotes that I have heard? Why or why not?***
-
+The data do not support the anecdotes.
 
 2. **Are these multiple choice questions meaningful?** Let's start with our code similar to our initial investigation of `mc1`, but select only `gpa_prior` and `mc1_pre`. Let's try something a little different, and see the relationship between the `final_exam` score and getting question `mc1` right.  Building on the code below, use `group_by()` to group by `mc1_post_tf` and then use `summarize()` and `mean()` to compare the average final exam scores among these groups. 
 
@@ -180,13 +190,20 @@ edu_dat %>%
 # add lines to this code to get the summary requested above
 edu_dat %>%
   select(final_exam,mc1_post) %>%
-  mutate(mc1_post_tf = (mc1_post == "C"))
+  mutate(mc1_post_tf = (mc1_post == "C"))%>%
+  group_by(mc1_post_tf)%>%
+  summarise(final_mean = mean(final_exam, na.rm = T))
 ```
 
 ***Pause and make sure you can state these results in a single-sentence. ***
+Students who got the first multiple choice question wrong had a higher mean final exam score.
 
 **Challenge/review.** We've thrown away a lot of data by only looking at the mean. Write code below to create a box plot where the x-axis is the TRUE/FALSE/NA value for `mc1_post_tf` and the y-axis is `final_exam`.  The `ggplot()` geometry for this is `geom_boxplot()`.
 
 ```{r}
-
+edu_dat %>%
+  select(final_exam,mc1_post) %>%
+  mutate(mc1_post_tf = (mc1_post == "C"))%>%
+  ggplot(aes(x=mc1_post_tf, y=final_exam))+
+  geom_boxplot()
 ```
